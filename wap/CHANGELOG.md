@@ -1,4 +1,26 @@
-# WAP (Web) App Changelog
+# XSIM Cambodia WAP - Changelog
+
+## [3.0.0] - 2024-11-20
+
+### Changed - Rebranding & Cleanup
+- **Project Name**: Changed from "my-v0-project" to "xsim-cambodia-wap"
+- **Metadata**: Updated title to "XSIM Cambodia - Authentication"
+- **Description**: Updated to "XSIM Cambodia Government Portal Authentication System"
+- **Version**: Bumped to 1.0.0 (production-ready)
+
+### Removed
+- v0 branding and references from all files
+- Placeholder images: `placeholder-logo.png`, `placeholder-logo.svg`, `placeholder-user.jpg`, `placeholder.jpg`, `placeholder.svg`
+- v0 generator metadata
+
+### Added
+- Comprehensive README.md with project documentation
+- Professional branding for XSIM Cambodia
+
+### UI Improvements
+- Standardized logo sizes (64x64px) across all pages
+- Vertically centered layout for better visual balance
+- More spacious and centered content
 
 ## [2.0.0] - 2024-11-19
 
