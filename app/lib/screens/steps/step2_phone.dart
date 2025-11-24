@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/event_service.dart';
 
 class Step2Phone extends StatelessWidget {
   final String Function(String) t;
@@ -20,6 +21,12 @@ class Step2Phone extends StatelessWidget {
     required this.onPhoneChanged,
   });
 
+  void _handleContinue() {
+    final fullPhone = '+855 $phoneNumber';
+    EventService().phoneEntered(fullPhone);
+    onNext();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -33,19 +40,21 @@ class Step2Phone extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Center(
-          child: Image.network(
-            'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-AeK1dqTdzm7bSzDCKuwc9d6MNRfFVv.png',
-            height: 64,
-            width: 64,
-            errorBuilder: (c, e, s) => Container(
-              height: 64,
-              width: 64,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.account_balance, size: 32),
-            ),
+          child: Image.asset(
+            'assets/images/gov_logo.png',
+            height: 80,
+            width: 80,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.account_balance, size: 40),
+              );
+            },
           ),
         ),
         const SizedBox(height: 40),
@@ -97,7 +106,7 @@ class Step2Phone extends StatelessWidget {
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: onNext,
+            onPressed: _handleContinue,
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryBlue,
               shape: RoundedRectangleBorder(

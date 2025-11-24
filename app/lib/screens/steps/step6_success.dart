@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../services/event_service.dart';
 
-class Step6Success extends StatelessWidget {
+class Step6Success extends StatefulWidget {
   final String Function(String) t;
   final Color primaryBlue;
   final Color successGreen;
@@ -13,6 +14,19 @@ class Step6Success extends StatelessWidget {
     required this.successGreen,
     required this.onProceed,
   });
+
+  @override
+  State<Step6Success> createState() => _Step6SuccessState();
+}
+
+class _Step6SuccessState extends State<Step6Success> {
+  final _eventService = EventService();
+
+  @override
+  void initState() {
+    super.initState();
+    _eventService.authSuccess();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +43,16 @@ class Step6Success extends StatelessWidget {
           child: Icon(
             Icons.check_circle_outline,
             size: 100,
-            color: successGreen,
+            color: widget.successGreen,
           ),
         ),
         const SizedBox(height: 32),
         Text(
-          t('successTitle'),
+          widget.t('successTitle'),
           style: TextStyle(
             fontSize: 36,
             fontWeight: FontWeight.bold,
-            color: successGreen,
+            color: widget.successGreen,
           ),
         ),
         const SizedBox(height: 24),
@@ -47,7 +61,7 @@ class Step6Success extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                t('successMessage1'),
+                widget.t('successMessage1'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
@@ -57,7 +71,7 @@ class Step6Success extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '${t('successMessage2')}\n${t('successMessage3')}',
+                '${widget.t('successMessage2')}\n${widget.t('successMessage3')}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16, height: 1.6),
               ),
@@ -73,7 +87,7 @@ class Step6Success extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            '🔐 ${t('tokenReceived')}',
+            '🔐 ${widget.t('tokenReceived')}',
             style: TextStyle(
               color: Colors.green[800],
               fontWeight: FontWeight.bold,
@@ -88,15 +102,15 @@ class Step6Success extends StatelessWidget {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: onProceed,
+              onPressed: widget.onProceed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryBlue,
+                backgroundColor: widget.primaryBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Text(
-                t('proceedToDashboard'),
+                widget.t('proceedToDashboard'),
                 style: const TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),

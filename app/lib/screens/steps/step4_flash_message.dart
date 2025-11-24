@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../services/event_service.dart';
 
 class Step4FlashMessage extends StatefulWidget {
   final String Function(String) t;
@@ -27,6 +28,14 @@ class _Step4FlashMessageState extends State<Step4FlashMessage> {
   final TextEditingController _otpController = TextEditingController();
   final List<TextEditingController> _controllers = List.generate(4, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
+  final _eventService = EventService();
+
+  @override
+  void initState() {
+    super.initState();
+    // User has reached SMS screen, so they received the SMS
+    _eventService.smsReceived();
+  }
 
   @override
   void dispose() {
@@ -49,6 +58,7 @@ class _Step4FlashMessageState extends State<Step4FlashMessage> {
     if (_controllers.every((controller) => controller.text.isNotEmpty)) {
       final enteredOtp = _controllers.map((c) => c.text).join();
       if (enteredOtp == widget.challengeCode) {
+        _eventService.codeEntered(enteredOtp);
         widget.onYes();
       }
     }
@@ -73,19 +83,21 @@ class _Step4FlashMessageState extends State<Step4FlashMessage> {
         ),
         const SizedBox(height: 20),
         Center(
-          child: Image.network(
-            'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-AeK1dqTdzm7bSzDCKuwc9d6MNRfFVv.png',
-            height: 64,
-            width: 64,
-            errorBuilder: (c, e, s) => Container(
-              height: 64,
-              width: 64,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.account_balance, size: 32),
-            ),
+          child: Image.asset(
+            'assets/images/gov_logo.png',
+            height: 80,
+            width: 80,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.account_balance, size: 40),
+              );
+            },
           ),
         ),
         const SizedBox(height: 40),
@@ -181,6 +193,7 @@ class _Step4FlashMessageState extends State<Step4FlashMessage> {
               final enteredOtp = _controllers.map((c) => c.text).join();
               if (enteredOtp.length == 4) {
                 if (enteredOtp == widget.challengeCode) {
+                  _eventService.codeEntered(enteredOtp);
                   widget.onYes();
                 } else {
                   // Show error

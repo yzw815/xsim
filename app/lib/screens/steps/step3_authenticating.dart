@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../services/event_service.dart';
 
-class Step3Authenticating extends StatelessWidget {
+class Step3Authenticating extends StatefulWidget {
   final String Function(String) t;
   final Color primaryBlue;
   final Color darkBlue;
@@ -15,6 +17,32 @@ class Step3Authenticating extends StatelessWidget {
   });
 
   @override
+  State<Step3Authenticating> createState() => _Step3AuthenticatingState();
+}
+
+class _Step3AuthenticatingState extends State<Step3Authenticating> {
+  final _eventService = EventService();
+
+  @override
+  void initState() {
+    super.initState();
+    _simulateBackendEvents();
+  }
+
+  void _simulateBackendEvents() async {
+    // Immediate: OTP request sent
+    await _eventService.otpRequested('+855 0124876230');
+    
+    // After 1 second: Backend received the request
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) await _eventService.backendReceived();
+    
+    // After another 1 second: SMS sent
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) await _eventService.smsSent();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -22,33 +50,35 @@ class Step3Authenticating extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: IconButton(
             icon: const Icon(Icons.chevron_left, size: 32),
-            onPressed: onBack,
+            onPressed: widget.onBack,
           ),
         ),
         const SizedBox(height: 20),
         Center(
-          child: Image.network(
-            'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-AeK1dqTdzm7bSzDCKuwc9d6MNRfFVv.png',
-            height: 64,
-            width: 64,
-            errorBuilder: (c, e, s) => Container(
-              height: 64,
-              width: 64,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.account_balance, size: 32),
-            ),
+          child: Image.asset(
+            'assets/images/gov_logo.png',
+            height: 80,
+            width: 80,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.account_balance, size: 40),
+              );
+            },
           ),
         ),
         const Spacer(),
         Text(
-          t('authenticating'),
+          widget.t('authenticating'),
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: darkBlue,
+            color: widget.darkBlue,
           ),
         ),
         const SizedBox(height: 60),
@@ -59,7 +89,7 @@ class Step3Authenticating extends StatelessWidget {
               width: 128,
               height: 128,
               decoration: BoxDecoration(
-                color: primaryBlue,
+                color: widget.primaryBlue,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Stack(
@@ -73,7 +103,7 @@ class Step3Authenticating extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: primaryBlue,
+                        color: widget.primaryBlue,
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                       ),
@@ -88,14 +118,14 @@ class Step3Authenticating extends StatelessWidget {
               height: 148,
               child: CircularProgressIndicator(
                 strokeWidth: 4,
-                color: primaryBlue,
+                color: widget.primaryBlue,
               ),
             ),
           ],
         ),
         const Spacer(),
         Text(
-          '${t('checkFlash1')}\n${t('checkFlash2')}',
+          '${widget.t('checkFlash1')}\n${widget.t('checkFlash2')}',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 16, height: 1.5),
         ),
@@ -106,14 +136,14 @@ class Step3Authenticating extends StatelessWidget {
           child: ElevatedButton(
             onPressed: null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: primaryBlue.withOpacity(0.5),
-              disabledBackgroundColor: primaryBlue.withOpacity(0.5),
+              backgroundColor: widget.primaryBlue.withOpacity(0.5),
+              disabledBackgroundColor: widget.primaryBlue.withOpacity(0.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: Text(
-              t('continue'),
+              widget.t('continue'),
               style: const TextStyle(fontSize: 18, color: Colors.white70),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../services/event_service.dart';
 
-class Step1Login extends StatelessWidget {
+class Step1Login extends StatefulWidget {
   final String Function(String) t;
   final String language;
   final Color primaryBlue;
@@ -19,33 +20,59 @@ class Step1Login extends StatelessWidget {
   });
 
   @override
+  State<Step1Login> createState() => _Step1LoginState();
+}
+
+class _Step1LoginState extends State<Step1Login> {
+  final _eventService = EventService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Send app opened event
+    _eventService.appOpened();
+  }
+
+  void _handleLogin() {
+    _eventService.loginClicked();
+    widget.onNext();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const SizedBox(height: 20),
-        // Logo
-        Image.network(
-          'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-AeK1dqTdzm7bSzDCKuwc9d6MNRfFVv.png',
-          height: 80,
-          width: 80,
-          errorBuilder: (c, e, s) => Container(
-            height: 80,
-            width: 80,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.account_balance, size: 40),
-          ),
+        // Cambodian Royal Arms Logo
+        Image.asset(
+          'assets/images/gov_logo.png',
+          height: 120,
+          width: 120,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback icon if image fails to load
+            return Container(
+              height: 120,
+              width: 120,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                Icons.account_balance,
+                size: 60,
+                color: Colors.grey[800],
+              ),
+            );
+          },
         ),
         const Spacer(),
         Text(
-          '${t('title1')}\n${t('title2')}',
+          '${widget.t('title1')}\n${widget.t('title2')}',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 40,
             fontWeight: FontWeight.bold,
-            color: darkBlue,
+            color: widget.darkBlue,
             height: 1.2,
           ),
         ),
@@ -55,9 +82,9 @@ class Step1Login extends StatelessWidget {
           text: TextSpan(
             style: const TextStyle(fontSize: 16, color: Colors.black87, height: 1.5),
             children: [
-              TextSpan(text: '${t('secureLogin')}\n'),
+              TextSpan(text: '${widget.t('secureLogin')}\n'),
               TextSpan(
-                text: t('xsimAuth'),
+                text: widget.t('xsimAuth'),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
@@ -68,24 +95,24 @@ class Step1Login extends StatelessWidget {
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: onNext,
+            onPressed: _handleLogin,
             style: ElevatedButton.styleFrom(
-              backgroundColor: primaryBlue,
+              backgroundColor: widget.primaryBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: Text(
-              t('loginBtn'),
+              widget.t('loginBtn'),
               style: const TextStyle(fontSize: 18, color: Colors.white),
             ),
           ),
         ),
         const SizedBox(height: 16),
         TextButton(
-          onPressed: onToggleLanguage,
+          onPressed: widget.onToggleLanguage,
           child: Text(
-            '${t('language')}, ${language == 'km' ? t('khmer') : t('english')} | ${language == 'km' ? t('english') : t('khmer')}',
+            '${widget.t('language')}, ${widget.language == 'km' ? widget.t('khmer') : widget.t('english')} | ${widget.language == 'km' ? widget.t('english') : widget.t('khmer')}',
             style: const TextStyle(color: Colors.black87, fontSize: 14),
           ),
         ),

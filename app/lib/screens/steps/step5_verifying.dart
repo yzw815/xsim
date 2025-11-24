@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../services/event_service.dart';
 
-class Step5Verifying extends StatelessWidget {
+class Step5Verifying extends StatefulWidget {
   final String Function(String) t;
   final Color primaryBlue;
 
@@ -11,12 +12,25 @@ class Step5Verifying extends StatelessWidget {
   });
 
   @override
+  State<Step5Verifying> createState() => _Step5VerifyingState();
+}
+
+class _Step5VerifyingState extends State<Step5Verifying> {
+  final _eventService = EventService();
+
+  @override
+  void initState() {
+    super.initState();
+    _eventService.verifying();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          t('verifying'),
+          widget.t('verifying'),
           style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 60),
@@ -33,7 +47,7 @@ class Step5Verifying extends StatelessWidget {
               child: Icon(
                 Icons.info_outline,
                 size: 80,
-                color: primaryBlue,
+                color: widget.primaryBlue,
               ),
             ),
             SizedBox(
@@ -41,7 +55,7 @@ class Step5Verifying extends StatelessWidget {
               height: 180,
               child: CircularProgressIndicator(
                 strokeWidth: 4,
-                color: primaryBlue,
+                color: widget.primaryBlue,
               ),
             ),
           ],
@@ -53,14 +67,14 @@ class Step5Verifying extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                t('verifyInfo1'),
+                widget.t('verifyInfo1'),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 12),
-              Text(t('verifyInfo2'), style: const TextStyle(fontSize: 15, height: 1.6)),
-              Text(t('verifyInfo3'), style: const TextStyle(fontSize: 15, height: 1.6)),
-              Text(t('verifyInfo4'), style: const TextStyle(fontSize: 15, height: 1.6)),
-              Text(t('verifyInfo5'), style: const TextStyle(fontSize: 15, height: 1.6)),
+              Text(widget.t('verifyInfo2'), style: const TextStyle(fontSize: 15, height: 1.6)),
+              Text(widget.t('verifyInfo3'), style: const TextStyle(fontSize: 15, height: 1.6)),
+              Text(widget.t('verifyInfo4'), style: const TextStyle(fontSize: 15, height: 1.6)),
+              Text(widget.t('verifyInfo5'), style: const TextStyle(fontSize: 15, height: 1.6)),
             ],
           ),
         ),

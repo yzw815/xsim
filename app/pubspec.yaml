@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -18,6 +19,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/
 
   # Add custom fonts if needed for better Khmer support
   # fonts:
