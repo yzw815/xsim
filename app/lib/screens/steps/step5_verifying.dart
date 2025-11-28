@@ -4,11 +4,13 @@ import '../../services/event_service.dart';
 class Step5Verifying extends StatefulWidget {
   final String Function(String) t;
   final Color primaryBlue;
+  final VoidCallback onNext;
 
   const Step5Verifying({
     super.key,
     required this.t,
     required this.primaryBlue,
+    required this.onNext,
   });
 
   @override
@@ -76,6 +78,37 @@ class _Step5VerifyingState extends State<Step5Verifying> {
               Text(widget.t('verifyInfo4'), style: const TextStyle(fontSize: 15, height: 1.6)),
               Text(widget.t('verifyInfo5'), style: const TextStyle(fontSize: 15, height: 1.6)),
             ],
+          ),
+        ),
+        const SizedBox(height: 32),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              width: 120,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: widget.onNext,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: widget.primaryBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Next',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(Icons.arrow_forward, color: Colors.white, size: 18),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ],

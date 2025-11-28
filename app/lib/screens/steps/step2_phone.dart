@@ -58,16 +58,18 @@ class Step2Phone extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 40),
-        Text(
-          t('verifyTitle'),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: darkBlue,
+        Center(
+          child: Text(
+            'Verify Your Mobile Number',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: darkBlue,
+            ),
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
@@ -95,11 +97,15 @@ class Step2Phone extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 32),
-        Text(
-          '${t('simRegistered1')}\n${t('simRegistered2')}\n${t('simRegistered3')}',
+        const SizedBox(height: 24),
+        const Text(
+          'Your SIM is registered with Ministry of Interior.\n\nPlease proceed to secure login. By Input your Mobile number, a Flash Msg will be sent to you to confirm.',
           textAlign: TextAlign.center,
-          style: const TextStyle(height: 1.6, fontSize: 16),
+          style: TextStyle(
+            height: 1.5,
+            fontSize: 14,
+            color: Colors.black54,
+          ),
         ),
         const Spacer(),
         SizedBox(

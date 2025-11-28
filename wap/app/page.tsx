@@ -2,8 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, Globe, Phone, Smartphone, CheckCircle2, AlertCircle } from 'lucide-react'
+import { ChevronLeft, Globe, Phone, Smartphone, CheckCircle2, AlertCircle, FileText } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+
+// Log entry interface
+interface LogEntry {
+  id: string;
+  timestamp: number;
+  level: 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR';
+  category: 'OTP' | 'API' | 'AUTH' | 'SYSTEM';
+  message: string;
+  data?: Record<string, any>;
+}
 
 const translations = {
   en: {
@@ -40,7 +50,8 @@ const translations = {
     successMessage2: 'Your identity has been verified',
     successMessage3: 'using SIM-based cryptographic signing.',
     tokenReceived: 'Auth Token Received',
-    proceedToDashboard: 'Proceed to Dashboard'
+    proceedToDashboard: 'Proceed to Dashboard',
+    otpSendFailed: 'Failed to send OTP. Please try again.'
   },
   km: {
     title1: 'កម្ពុជា',
@@ -76,7 +87,8 @@ const translations = {
     successMessage2: 'អត្តសញ្ញាណរបស់អ្នកត្រូវបានផ្ទៀងផ្ទាត់',
     successMessage3: 'ដោយប្រើការចុះហត្ថលេខាគ្រីបតូក្រាហ្វិកតាមស៊ីម។',
     tokenReceived: 'បានទទួល Auth Token',
-    proceedToDashboard: 'ទៅកាន់ផ្ទាំងគ្រប់គ្រង'
+    proceedToDashboard: 'ទៅកាន់ផ្ទាំងគ្រប់គ្រង',
+    otpSendFailed: 'បានបរាជ័យក្នុងការផ្ញើ OTP។ សូមព្យាយាមម្តងទៀត។'
   }
 }
 
@@ -84,18 +96,19 @@ export default function AuthFlow() {
   const [step, setStep] = useState(1)
   const [language, setLanguage] = useState<'en' | 'km'>('en')
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [challengeCode] = useState(() => Math.floor(1000 + Math.random() * 9000).toString())
+  const [sentOtp, setSentOtp] = useState<string | null>(null)
   const [otpValues, setOtpValues] = useState(['', '', '', ''])
   const [otpError, setOtpError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [showLogs, setShowLogs] = useState(false)
+  const [logs, setLogs] = useState<LogEntry[]>([])
 
   const t = translations[language]
 
+  // Send OTP when step 3 is reached
   useEffect(() => {
     if (step === 3) {
-      const timer = setTimeout(() => {
-        setStep(4)
-      }, 3000)
-      return () => clearTimeout(timer)
+      sendOtp()
     }
   }, [step])
 
@@ -108,12 +121,180 @@ export default function AuthFlow() {
     }
   }, [step])
 
+  // Fetch logs periodically when log viewer is open
+  useEffect(() => {
+    if (showLogs) {
+      fetchLogs()
+      const interval = setInterval(fetchLogs, 2000)
+      return () => clearInterval(interval)
+    }
+  }, [showLogs])
+
+  const fetchLogs = async () => {
+    try {
+      const response = await fetch('/api/logs')
+      const data = await response.json()
+      if (data.success) {
+        setLogs(data.logs)
+      }
+    } catch (error) {
+      console.error('Failed to fetch logs:', error)
+    }
+  }
+
+  const clearLogs = async () => {
+    try {
+      await fetch('/api/logs', { method: 'DELETE' })
+      setLogs([])
+    } catch (error) {
+      console.error('Failed to clear logs:', error)
+    }
+  }
+
+  const sendOtp = async () => {
+    const fullPhone = `+855${phoneNumber}`
+    setIsLoading(true)
+    
+    try {
+      const response = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ msisdn: fullPhone }),
+      })
+      
+      const data = await response.json()
+      
+      if (data.success || data.otp) {
+        setSentOtp(data.otp)
+        // Wait 2 seconds then advance to step 4
+        setTimeout(() => {
+          setStep(4)
+          setIsLoading(false)
+        }, 2000)
+      } else {
+        setOtpError(data.error || 'Failed to send OTP')
+        setStep(2)
+        setIsLoading(false)
+      }
+    } catch (error) {
+      console.error('OTP send error:', error)
+      setOtpError('Failed to send OTP. Please try again.')
+      setStep(2)
+      setIsLoading(false)
+    }
+  }
+
+  const verifyOtp = async (enteredCode: string): Promise<boolean> => {
+    const fullPhone = `+855${phoneNumber}`
+    
+    try {
+      const response = await fetch('/api/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ msisdn: fullPhone, otp: enteredCode }),
+      })
+      
+      const data = await response.json()
+      return data.valid === true
+    } catch (error) {
+      console.error('OTP verify error:', error)
+      return false
+    }
+  }
+
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'km' : 'en')
   }
 
+  // Get level color for logs
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case 'SUCCESS': return 'text-green-600 bg-green-50'
+      case 'ERROR': return 'text-red-600 bg-red-50'
+      case 'WARNING': return 'text-orange-600 bg-orange-50'
+      default: return 'text-blue-600 bg-blue-50'
+    }
+  }
+
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center">
+    <main className="min-h-screen bg-white flex items-center justify-center relative">
+      {/* Log Viewer Button */}
+      <button
+        onClick={() => setShowLogs(!showLogs)}
+        className="fixed top-4 right-4 z-50 p-2 bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-600 transition-colors"
+        title="View Logs"
+      >
+        <FileText className="w-5 h-5" />
+      </button>
+
+      {/* Log Viewer Panel */}
+      {showLogs && (
+        <div className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-bold">OTP Logs</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={fetchLogs}
+                  className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                >
+                  Refresh
+                </button>
+                <button
+                  onClick={clearLogs}
+                  className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => setShowLogs(false)}
+                  className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              {logs.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No logs yet</p>
+                  <p className="text-sm">OTP operations will appear here</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {logs.map((log) => (
+                    <div key={log.id} className="border rounded-lg p-3">
+                      <div className="flex items-start gap-2">
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded ${getLevelColor(log.level)}`}>
+                          {log.level}
+                        </span>
+                        <span className="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700">
+                          {log.category}
+                        </span>
+                        <span className="text-xs text-gray-400 ml-auto">
+                          {new Date(log.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm font-medium">{log.message}</p>
+                      {log.data && Object.keys(log.data).length > 0 && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
+                          {Object.entries(log.data).map(([key, value]) => (
+                            <div key={key} className="flex gap-2">
+                              <span className="font-medium text-gray-600">{key}:</span>
+                              <span className="text-gray-800 break-all">{JSON.stringify(value)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Step 1: Initial Login Screen */}
       {step === 1 && (
@@ -296,7 +477,7 @@ export default function AuthFlow() {
                   inputMode="numeric"
                   maxLength={1}
                   value={otpValues[index]}
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const value = e.target.value.replace(/[^0-9]/g, '')
                     if (value.length <= 1) {
                       const newOtpValues = [...otpValues]
@@ -313,10 +494,20 @@ export default function AuthFlow() {
                       // Auto-validate when all filled
                       if (newOtpValues.every(v => v !== '')) {
                         const enteredCode = newOtpValues.join('')
-                        if (enteredCode === challengeCode) {
+                        // Use local verification for demo (compare with sentOtp)
+                        if (sentOtp && enteredCode === sentOtp) {
                           setTimeout(() => setStep(5), 300)
                         } else {
-                          setOtpError('Incorrect code. Please try again.')
+                          // Try API verification as fallback
+                          const isValid = await verifyOtp(enteredCode)
+                          if (isValid) {
+                            setTimeout(() => setStep(5), 300)
+                          } else {
+                            setOtpError('Incorrect code. Please try again.')
+                            setOtpValues(['', '', '', ''])
+                            const firstInput = document.getElementById('otp-0')
+                            firstInput?.focus()
+                          }
                         }
                       }
                     }
@@ -338,15 +529,17 @@ export default function AuthFlow() {
               ))}
             </div>
 
-            {/* Info Box (Demo) */}
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-8">
-              <div className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-blue-700 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <p className="text-sm text-blue-900">Enter code: {challengeCode}</p>
+            {/* Info Box (Demo) - Show sent OTP */}
+            {sentOtp && (
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-8">
+                <div className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-blue-700 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-blue-900">Enter code: {sentOtp}</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Error Message */}
             {otpError && (
@@ -357,13 +550,23 @@ export default function AuthFlow() {
           </div>
 
           <Button 
-            onClick={() => {
+            onClick={async () => {
               const enteredCode = otpValues.join('')
               if (enteredCode.length === 4) {
-                if (enteredCode === challengeCode) {
+                // Use local verification for demo (compare with sentOtp)
+                if (sentOtp && enteredCode === sentOtp) {
                   setStep(5)
                 } else {
-                  setOtpError('Incorrect code. Please try again.')
+                  // Try API verification as fallback
+                  const isValid = await verifyOtp(enteredCode)
+                  if (isValid) {
+                    setStep(5)
+                  } else {
+                    setOtpError('Incorrect code. Please try again.')
+                    setOtpValues(['', '', '', ''])
+                    const firstInput = document.getElementById('otp-0')
+                    firstInput?.focus()
+                  }
                 }
               }
             }}

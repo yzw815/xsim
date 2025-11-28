@@ -1,12 +1,11 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../services/event_service.dart';
 
-class Step3Authenticating extends StatefulWidget {
+class Step3Authenticating extends StatelessWidget {
   final String Function(String) t;
   final Color primaryBlue;
   final Color darkBlue;
   final VoidCallback onBack;
+  final VoidCallback onNext;
 
   const Step3Authenticating({
     super.key,
@@ -14,33 +13,8 @@ class Step3Authenticating extends StatefulWidget {
     required this.primaryBlue,
     required this.darkBlue,
     required this.onBack,
+    required this.onNext,
   });
-
-  @override
-  State<Step3Authenticating> createState() => _Step3AuthenticatingState();
-}
-
-class _Step3AuthenticatingState extends State<Step3Authenticating> {
-  final _eventService = EventService();
-
-  @override
-  void initState() {
-    super.initState();
-    _simulateBackendEvents();
-  }
-
-  void _simulateBackendEvents() async {
-    // Immediate: OTP request sent
-    await _eventService.otpRequested('+855 0124876230');
-    
-    // After 1 second: Backend received the request
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) await _eventService.backendReceived();
-    
-    // After another 1 second: SMS sent
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) await _eventService.smsSent();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +24,7 @@ class _Step3AuthenticatingState extends State<Step3Authenticating> {
           alignment: Alignment.centerLeft,
           child: IconButton(
             icon: const Icon(Icons.chevron_left, size: 32),
-            onPressed: widget.onBack,
+            onPressed: onBack,
           ),
         ),
         const SizedBox(height: 20),
@@ -73,78 +47,69 @@ class _Step3AuthenticatingState extends State<Step3Authenticating> {
           ),
         ),
         const Spacer(),
-        Text(
-          widget.t('authenticating'),
+        const Text(
+          'Authentication XSIM User',
           style: TextStyle(
-            fontSize: 28,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: widget.darkBlue,
+            color: Colors.black87,
           ),
         ),
         const SizedBox(height: 60),
         Stack(
           alignment: Alignment.center,
           children: [
-            Container(
-              width: 128,
-              height: 128,
-              decoration: BoxDecoration(
-                color: widget.primaryBlue,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(Icons.smartphone, color: Colors.white, size: 64),
-                  Positioned(
-                    bottom: 8,
-                    right: 8,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: widget.primaryBlue,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: const Icon(Icons.lock, color: Colors.white, size: 20),
-                    ),
-                  ),
-                ],
+            // Flash Message Icon
+            SizedBox(
+              width: 120,
+              height: 120,
+              child: Image.asset(
+                'assets/images/flash_message.png',
+                fit: BoxFit.contain,
               ),
             ),
+            // Loading indicator around the icon
             SizedBox(
-              width: 148,
-              height: 148,
+              width: 160,
+              height: 160,
               child: CircularProgressIndicator(
-                strokeWidth: 4,
-                color: widget.primaryBlue,
+                strokeWidth: 3,
+                color: primaryBlue,
               ),
             ),
           ],
         ),
         const Spacer(),
         Text(
-          '${widget.t('checkFlash1')}\n${widget.t('checkFlash2')}',
+          '${t('checkFlash1')}\n${t('checkFlash2')}',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 16, height: 1.5),
         ),
         const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: widget.primaryBlue.withOpacity(0.5),
-              disabledBackgroundColor: widget.primaryBlue.withOpacity(0.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: 120,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: onNext,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-            ),
-            child: Text(
-              widget.t('continue'),
-              style: const TextStyle(fontSize: 18, color: Colors.white70),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Next',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.arrow_forward, color: Colors.white, size: 18),
+                ],
+              ),
             ),
           ),
         ),

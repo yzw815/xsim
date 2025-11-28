@@ -1,0 +1,31 @@
+name: xsim_auth
+description: Cambodia Government Portal - XSIM Authentication Mobile App
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  http: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  # Add custom fonts if needed for better Khmer support
+  # fonts:
+  #   - family: Khmer
+  #     fonts:
+  #       - asset: fonts/KhmerFont.ttf
+
