@@ -10,21 +10,30 @@ plugins {
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
-    FileInputStream(keystorePropertiesFile).use { keystoreProperties.load(it) }
+    FileInputStream(keystorePropertiesFile).use {
+        keystoreProperties.load(it)
+    }
 }
 
 android {
     namespace = "com.zeptomobile.xsim.kh"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "28.2.13676358"
+
+    // (Optional but often helps) Pin a known-good NDK version
+    // If you don't have this NDK installed, install it via Android Studio -> SDK Tools -> NDK (Side by side)
+	ndkVersion = "27.0.12077973"
+
+	buildToolsVersion = "34.0.0"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
 
     defaultConfig {
@@ -37,28 +46,29 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties.getProperty("keyAlias")
-            keyPassword = keystoreProperties.getProperty("keyPassword")
-            storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
-            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties["keyAlias"] as String?
+            keyPassword = keystoreProperties["keyPassword"] as String?
+            storeFile = keystoreProperties["storeFile"]?.let { rootProject.file(it) }
+            storePassword = keystoreProperties["storePassword"] as String?
         }
     }
 
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
+
+            // Try to avoid "failed to strip debug symbols" issues
             ndk {
-                debugSymbolLevel = "none"
+                debugSymbolLevel = "SYMBOL_TABLE"
             }
+
+
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 
-    // Workaround for "failed to strip debug symbols from native libraries"
-    packaging {
-        jniLibs {
-            keepDebugSymbols += setOf("**/*.so")
-        }
-    }
+
 }
 
 flutter {

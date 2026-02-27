@@ -5,7 +5,6 @@ class Step6Success extends StatefulWidget {
   final String Function(String) t;
   final Color primaryBlue;
   final Color successGreen;
-  final VoidCallback onProceed;
   final VoidCallback onBackToHome;
   final VoidCallback onBack;
 
@@ -14,7 +13,6 @@ class Step6Success extends StatefulWidget {
     required this.t,
     required this.primaryBlue,
     required this.successGreen,
-    required this.onProceed,
     required this.onBackToHome,
     required this.onBack,
   });
@@ -172,13 +170,13 @@ class _Step6SuccessState extends State<Step6Success> {
                 ),
               ),
               const Spacer(),
-              // Proceed to Dashboard button (Figma: top 685px, 320x60)
+              // Back to Home button (primary action now)
               Center(
                 child: SizedBox(
                   width: 320,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: widget.onProceed,
+                    onPressed: widget.onBackToHome,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF33568F),
                       foregroundColor: Colors.white,
@@ -188,7 +186,7 @@ class _Step6SuccessState extends State<Step6Success> {
                       elevation: 0,
                     ),
                     child: const Text(
-                      'Proceed To Dashboard',
+                      'Back To Home',
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
@@ -197,35 +195,7 @@ class _Step6SuccessState extends State<Step6Success> {
                   ),
                 ),
               ),
-              // Gap between buttons (Figma: 761 - 745 = 16px)
-              const SizedBox(height: 16),
-              // Back to Home button (Figma: top 761px, 320x60)
-              Center(
-                child: SizedBox(
-                  width: 320,
-                  height: 60,
-                  child: OutlinedButton(
-                    onPressed: widget.onBackToHome,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Color(0xFF33568F),
-                        width: 2,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: const Text(
-                      'Back To Home',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Color(0xFF33568F),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // Bottom padding (Figma: 852 - 821 = 31px, accounting for home indicator)
+              // Bottom padding
               const SizedBox(height: 30),
             ],
           ),

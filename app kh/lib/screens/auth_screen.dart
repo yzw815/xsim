@@ -201,10 +201,6 @@ class _AuthScreenState extends State<AuthScreen> {
           t: t,
           primaryBlue: primaryBlue,
           successGreen: successGreen,
-          onProceed: () {
-            // Navigate to dashboard (step 7)
-            setStep(7);
-          },
           onBackToHome: () {
             // Reset state and go back to step 1
             setState(() {
