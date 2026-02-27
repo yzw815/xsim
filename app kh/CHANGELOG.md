@@ -1,6 +1,32 @@
 # Changelog
 
+## [1.0.2+3] - 2026-02-27
+
+### Changed
+- **Step 6 (Success)**: Removed "Proceed To Dashboard" button — app now ends at the Success screen
+  - "Back To Home" is now the only action (promoted to filled/primary button style)
+  - Prevents Google Play "not fully functional" rejection caused by non-interactive Dashboard UI
+
+### Removed
+- **`onProceed` callback** from `Step6Success` widget — no longer needed
+
+### Added
+- **App Icon**: `assets/images/xsim logo.png` set as app icon for Android and iOS
+  - Added `flutter_launcher_icons ^0.14.1` dev dependency
+  - Generated all Android mipmap sizes (mdpi → xxxhdpi)
+  - Generated all iOS AppIcon sizes (20pt → 1024pt)
+
+### Files Modified
+- `lib/screens/steps/step6_success.dart` — remove Dashboard button, promote Back To Home
+- `lib/screens/auth_screen.dart` — remove `onProceed` Dashboard navigation
+- `pubspec.yaml` — add `flutter_launcher_icons`, bump version to `1.0.2+3`
+- `android/app/src/main/res/mipmap-*/ic_launcher.png` — new app icon
+- `ios/Runner/Assets.xcassets/AppIcon.appiconset/` — new app icon (all sizes)
+
+> ℹ️ `step7_dashboard.dart` is intentionally kept in the codebase but is unreachable from the UI.
+
 ## [1.0.3] - 2024-11-19
+
 
 ### Added
 - **Platform Support**: Created all platform-specific files (Android, iOS, macOS, Windows, Linux, Web)
