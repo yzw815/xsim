@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Government Portal — Secure Access</title>
+  <meta name="description"
+    content="Government Portal demo — SIM-based XSIM authentication for secure citizen access to government services.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- ===== PAGE 1: LANDING / PORTAL HOME ===== -->
+  <div id="page-landing" class="page active">
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <div class="logo-group">
+          <div class="logo-icon">🏛️</div>
+          <div class="logo-text">
+            <span class="logo-title">Government Portal</span>
+            <span class="logo-subtitle">Secured by XSIM</span>
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="#" class="nav-link">Services</a>
+          <a href="#" class="nav-link">About</a>
+          <a href="#" class="nav-link">Help</a>
+          <button id="btn-goto-login" class="btn-login-top" onclick="goTo('login')">Sign In</button>
+        </nav>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-badge">🔐 Secured by XSIM Authentication</div>
+        <h1>Access Government<br>Services <span class="text-gold">Securely</span></h1>
+        <p class="hero-desc">Verify your identity using SIM-based cryptographic signing through the XSIM mobile app. No
+          passwords needed — your SIM card is your identity.</p>
+        <div class="hero-actions">
+          <button id="btn-hero-signin" class="btn-primary btn-lg" onclick="goTo('login')">
+            <span class="btn-icon">🔑</span> Sign In with XSIM
+          </button>
+          <button class="btn-outline btn-lg">Learn More</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num">2.4M+</span>
+            <span class="stat-label">Citizens Verified</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">150+</span>
+            <span class="stat-label">Government Services</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">99.9%</span>
+            <span class="stat-label">Uptime</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="services-section">
+      <div class="container">
+        <h2 class="section-title">Available Services</h2>
+        <p class="section-subtitle">Access government services with a single secure authentication</p>
+        <div class="services-grid">
+          <div class="service-card" onclick="goTo('login')">
+            <div class="service-icon">📋</div>
+            <h3>National ID</h3>
+            <p>View and manage your national identification card details</p>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-card" onclick="goTo('login')">
+            <div class="service-icon">🚗</div>
+            <h3>Vehicle Registration</h3>
+            <p>Check vehicle registration, road tax, and driving license</p>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-card" onclick="goTo('login')">
+            <div class="service-icon">💰</div>
+            <h3>Tax Filing</h3>
+            <p>File and manage your income tax returns securely</p>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-card" onclick="goTo('login')">
+            <div class="service-icon">🏥</div>
+            <h3>Healthcare</h3>
+            <p>Access medical records and health service appointments</p>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-card" onclick="goTo('login')">
+            <div class="service-icon">🏠</div>
+            <h3>Property</h3>
+            <p>Land titles, property ownership, and registration records</p>
+            <span class="service-arrow">→</span>
+          </div>
+          <div class="service-card" onclick="goTo('login')">
+            <div class="service-icon">📚</div>
+            <h3>Education</h3>
+            <p>Academic records, certifications, and enrollment services</p>
+            <span class="service-arrow">→</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works">
+      <div class="container">
+        <h2 class="section-title">How XSIM Authentication Works</h2>
+        <p class="section-subtitle">SIM-based cryptographic signing — no passwords, no phishing</p>
+        <div class="steps-flow">
+          <div class="flow-step">
+            <div class="flow-num">1</div>
+            <div class="flow-icon">📱</div>
+            <h4>Open XSIM App</h4>
+            <p>Launch the XSIM authentication app on your mobile device</p>
+          </div>
+          <div class="flow-connector">→</div>
+          <div class="flow-step">
+            <div class="flow-num">2</div>
+            <div class="flow-icon">📷</div>
+            <h4>Scan QR Code</h4>
+            <p>Scan the QR code displayed on the portal login page</p>
+          </div>
+          <div class="flow-connector">→</div>
+          <div class="flow-step">
+            <div class="flow-num">3</div>
+            <div class="flow-icon">🔐</div>
+            <h4>SIM Verification</h4>
+            <p>Your SIM signs the auth challenge cryptographically</p>
+          </div>
+          <div class="flow-connector">→</div>
+          <div class="flow-step">
+            <div class="flow-num">4</div>
+            <div class="flow-icon">✅</div>
+            <h4>Access Granted</h4>
+            <p>Portal authenticates you automatically — you're in!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="main-footer">
+      <div class="container footer-inner">
+        <div class="footer-left">
+          <div class="logo-group">
+            <div class="logo-icon">🏛️</div>
+            <span class="logo-title" style="color:#fff">Government Portal</span>
+          </div>
+          <p class="footer-text">Powered by XSIM SIM-based authentication technology. Ensuring secure access to
+            government services for all citizens.</p>
+        </div>
+        <div class="footer-right">
+          <p class="footer-copy">© 2026 Government Portal. All rights reserved.</p>
+          <p class="footer-copy">Demo version — XSIM Authentication Showcase</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===== PAGE 2: LOGIN / QR CODE ===== -->
+  <div id="page-login" class="page">
+    <div class="auth-layout">
+      <div class="auth-left">
+        <div class="auth-left-content">
+          <div class="auth-back" onclick="goTo('landing')">← Back to Portal</div>
+          <div class="auth-brand">
+            <div class="logo-icon large">🏛️</div>
+            <h2>Government Portal</h2>
+            <p>Sign in securely using your XSIM app</p>
+          </div>
+          <div class="auth-features">
+            <div class="auth-feature">
+              <span class="feature-icon">🛡️</span>
+              <div>
+                <strong>No Password Required</strong>
+                <p>Your SIM card is your cryptographic identity</p>
+              </div>
+            </div>
+            <div class="auth-feature">
+              <span class="feature-icon">🚫</span>
+              <div>
+                <strong>Anti-Phishing</strong>
+                <p>Impossible to steal credentials through fake sites</p>
+              </div>
+            </div>
+            <div class="auth-feature">
+              <span class="feature-icon">⚡</span>
+              <div>
+                <strong>Instant Verification</strong>
+                <p>Authenticate in seconds via your mobile network</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="auth-right">
+        <div class="auth-card">
+          <div class="auth-card-header">
+            <h3>Sign in with XSIM</h3>
+            <p>Scan the QR code below using your XSIM mobile app</p>
+          </div>
+          <div class="qr-container">
+            <div class="qr-frame">
+              <img src="assets/qr-code.png" alt="QR Code — Scan with XSIM App" class="qr-image" id="qr-img">
+              <div class="qr-corners">
+                <span class="corner tl"></span>
+                <span class="corner tr"></span>
+                <span class="corner bl"></span>
+                <span class="corner br"></span>
+              </div>
+            </div>
+            <div class="qr-timer">
+              <div class="timer-bar" id="timer-bar"></div>
+            </div>
+            <p class="qr-expiry">QR code expires in <span id="qr-countdown">60</span>s</p>
+          </div>
+          <div class="auth-divider"><span>or</span></div>
+          <button id="btn-demo-auth" class="btn-secondary btn-full" onclick="startAuth()">
+            <span class="btn-icon">📱</span> Simulate XSIM Authentication
+          </button>
+          <p class="auth-help">Don't have the XSIM app? <a href="#">Download here</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE 3: WAITING / AUTHENTICATING ===== -->
+  <div id="page-waiting" class="page">
+    <div class="center-layout">
+      <div class="waiting-card">
+        <div class="auth-back" onclick="goTo('login')" style="align-self: flex-start;">← Cancel</div>
+        <div class="waiting-animation">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring delay-1"></div>
+          <div class="pulse-ring delay-2"></div>
+          <div class="phone-icon">📱</div>
+        </div>
+        <h2>Waiting for Authentication</h2>
+        <p class="waiting-desc">Please open your <strong>XSIM App</strong> and approve the login request</p>
+        <div class="waiting-steps">
+          <div class="w-step completed" id="ws-1">
+            <span class="w-check">✓</span>
+            <span>QR code scanned</span>
+          </div>
+          <div class="w-step active" id="ws-2">
+            <span class="w-spinner"></span>
+            <span>SIM-based signature in progress...</span>
+          </div>
+          <div class="w-step pending" id="ws-3">
+            <span class="w-dot"></span>
+            <span>Server verification</span>
+          </div>
+          <div class="w-step pending" id="ws-4">
+            <span class="w-dot"></span>
+            <span>Establishing secure session</span>
+          </div>
+        </div>
+        <div class="waiting-notice">
+          <span>🔒</span>
+          <p>Your authentication is secured with end-to-end encryption. No personal data is transmitted to third
+            parties.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE 4: SUCCESS ===== -->
+  <div id="page-success" class="page">
+    <div class="center-layout">
+      <div class="success-card">
+        <div class="success-check-container">
+          <div class="success-circle">
+            <svg class="checkmark-svg" viewBox="0 0 52 52">
+              <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+              <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+            </svg>
+          </div>
+        </div>
+        <h2>Authentication Successful</h2>
+        <p class="success-desc">Your identity has been verified using SIM-based cryptographic signing</p>
+        <div class="success-details">
+          <div class="detail-row">
+            <span class="detail-label">Auth Token</span>
+            <span class="detail-value token">xsim_kh_•••••••a7f3</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Session ID</span>
+            <span class="detail-value">ses_8k2n•••••f91</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Verified At</span>
+            <span class="detail-value" id="verified-time">—</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Method</span>
+            <span class="detail-value"><span class="badge-sim">SIM Crypto</span></span>
+          </div>
+        </div>
+        <button id="btn-goto-portal" class="btn-primary btn-lg btn-full" onclick="goTo('dashboard')">
+          Enter Government Portal →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE 5: DASHBOARD / PORTAL ===== -->
+  <div id="page-dashboard" class="page">
+    <header class="top-bar dashboard-bar">
+      <div class="top-bar-inner">
+        <div class="logo-group">
+          <div class="logo-icon">🏛️</div>
+          <span class="logo-title">Government Portal</span>
+        </div>
+        <div class="user-menu">
+          <div class="session-badge">🔐 XSIM Verified</div>
+          <div class="user-avatar" onclick="goTo('landing')">
+            <span>TS</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-body">
+      <div class="container">
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h2>Welcome back, <span class="text-gold">Tit Samol</span></h2>
+            <p>Your session is secured with SIM-based XSIM authentication</p>
+          </div>
+          <div class="welcome-badge">
+            <div class="badge-verified">✓ Identity Verified</div>
+            <p class="badge-method">XSIM SIM Crypto • Session active</p>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="dash-card id-card-widget">
+            <div class="dash-card-header">
+              <h3>Digital National ID</h3>
+              <span class="status-badge green">Active</span>
+            </div>
+            <div class="id-card-display">
+              <div class="id-card-mock">
+                <div class="id-top-row">
+                  <div>
+                    <div class="id-label">NATIONAL DIGITAL ID</div>
+                    <div class="id-label-kh">Verified Citizen Identity</div>
+                  </div>
+                  <div class="id-number">101105287</div>
+                </div>
+                <div class="id-body">
+                  <div class="id-photo">👤</div>
+                  <div class="id-info">
+                    <div class="id-name">TIT SAMOL</div>
+                    <div class="id-name-kh">Citizen ID Holder</div>
+                    <div class="id-dob">DOB: 12/09/1984</div>
+                    <div class="id-expiry">EXP: 12/09/2025</div>
+                  </div>
+                </div>
+                <div class="id-mrz">IDNXX101105287&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h3>Quick Actions</h3>
+            </div>
+            <div class="quick-actions-grid">
+              <div class="action-item">
+                <span class="action-icon">📋</span>
+                <span>View Profile</span>
+              </div>
+              <div class="action-item">
+                <span class="action-icon">🚗</span>
+                <span>Vehicle</span>
+              </div>
+              <div class="action-item">
+                <span class="action-icon">💰</span>
+                <span>Tax</span>
+              </div>
+              <div class="action-item">
+                <span class="action-icon">🏥</span>
+                <span>Health</span>
+              </div>
+              <div class="action-item">
+                <span class="action-icon">🏠</span>
+                <span>Property</span>
+              </div>
+              <div class="action-item">
+                <span class="action-icon">📜</span>
+                <span>Documents</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h3>Recent Activity</h3>
+              <a href="#" class="card-link">View all</a>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item">
+                <span class="act-icon blue">🔐</span>
+                <div class="act-content">
+                  <strong>XSIM Login</strong>
+                  <span>Authenticated via SIM crypto signing</span>
+                </div>
+                <span class="act-time">Just now</span>
+              </div>
+              <div class="activity-item">
+                <span class="act-icon green">📋</span>
+                <div class="act-content">
+                  <strong>ID Card Viewed</strong>
+                  <span>Digital NRIC accessed</span>
+                </div>
+                <span class="act-time">2 days ago</span>
+              </div>
+              <div class="activity-item">
+                <span class="act-icon gold">💰</span>
+                <div class="act-content">
+                  <strong>Tax Filing</strong>
+                  <span>Annual return submitted</span>
+                </div>
+                <span class="act-time">1 week ago</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h3>Security</h3>
+            </div>
+            <div class="security-info">
+              <div class="sec-row">
+                <span class="sec-label">Authentication</span>
+                <span class="sec-value"><span class="dot green"></span> XSIM SIM-based</span>
+              </div>
+              <div class="sec-row">
+                <span class="sec-label">Session Encryption</span>
+                <span class="sec-value"><span class="dot green"></span> AES-256</span>
+              </div>
+              <div class="sec-row">
+                <span class="sec-label">Last Login</span>
+                <span class="sec-value" id="last-login-time">—</span>
+              </div>
+              <div class="sec-row">
+                <span class="sec-label">Device</span>
+                <span class="sec-value">SIM ••4287</span>
+              </div>
+            </div>
+            <button class="btn-outline btn-sm btn-full" onclick="goTo('landing')" style="margin-top:16px">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
