@@ -1,0 +1,9 @@
+name = "xsim-otp-server"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV Namespace for storing phone registrations and OTPs
+[[kv_namespaces]]
+binding = "XSIM_KV"
+id = "427065cf5ac04d07a0929393a2b609de"

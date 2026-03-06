@@ -120,29 +120,29 @@
           <div class="flow-step">
             <div class="flow-num">1</div>
             <div class="flow-icon">📱</div>
-            <h4>Open XSIM App</h4>
-            <p>Launch the XSIM authentication app on your mobile device</p>
+            <h4>Register in XSIM App</h4>
+            <p>Download the XSIM app and register your phone number</p>
           </div>
           <div class="flow-connector">→</div>
           <div class="flow-step">
             <div class="flow-num">2</div>
-            <div class="flow-icon">📷</div>
-            <h4>Scan QR Code</h4>
-            <p>Scan the QR code displayed on the portal login page</p>
+            <div class="flow-icon">🔢</div>
+            <h4>Enter Phone Number</h4>
+            <p>Enter your registered phone number on the portal</p>
           </div>
           <div class="flow-connector">→</div>
           <div class="flow-step">
             <div class="flow-num">3</div>
             <div class="flow-icon">🔐</div>
-            <h4>SIM Verification</h4>
-            <p>Your SIM signs the auth challenge cryptographically</p>
+            <h4>Receive OTP</h4>
+            <p>Your XSIM app receives a verification code via push notification</p>
           </div>
           <div class="flow-connector">→</div>
           <div class="flow-step">
             <div class="flow-num">4</div>
             <div class="flow-icon">✅</div>
             <h4>Access Granted</h4>
-            <p>Portal authenticates you automatically — you're in!</p>
+            <p>Enter the OTP on the portal — you're in!</p>
           </div>
         </div>
       </div>
@@ -166,7 +166,7 @@
     </footer>
   </div>
 
-  <!-- ===== PAGE 2: LOGIN / QR CODE ===== -->
+  <!-- ===== PAGE 2: LOGIN / PHONE NUMBER ===== -->
   <div id="page-login" class="page">
     <div class="auth-layout">
       <div class="auth-left">
@@ -196,7 +196,7 @@
               <span class="feature-icon">⚡</span>
               <div>
                 <strong>Instant Verification</strong>
-                <p>Authenticate in seconds via your mobile network</p>
+                <p>Authenticate in seconds via push notification</p>
               </div>
             </div>
           </div>
@@ -206,64 +206,60 @@
         <div class="auth-card">
           <div class="auth-card-header">
             <h3>Sign in with XSIM</h3>
-            <p>Scan the QR code below using your XSIM mobile app</p>
+            <p>Enter your registered phone number to receive a verification code</p>
           </div>
-          <div class="qr-container">
-            <div class="qr-frame">
-              <img src="assets/qr-code.png" alt="QR Code — Scan with XSIM App" class="qr-image" id="qr-img">
-              <div class="qr-corners">
-                <span class="corner tl"></span>
-                <span class="corner tr"></span>
-                <span class="corner bl"></span>
-                <span class="corner br"></span>
+          <div class="phone-input-container">
+            <label class="phone-label" for="phone-input">Phone Number</label>
+            <div class="phone-input-group">
+              <div class="phone-prefix">
+                <span class="prefix-flag">🇰🇭</span>
+                <span class="prefix-code">+855</span>
               </div>
+              <input type="tel" id="phone-input" class="phone-input" placeholder="12 345 6789" maxlength="15"
+                autocomplete="tel" inputmode="numeric">
             </div>
-            <div class="qr-timer">
-              <div class="timer-bar" id="timer-bar"></div>
-            </div>
-            <p class="qr-expiry">QR code expires in <span id="qr-countdown">60</span>s</p>
+            <p class="phone-hint">Enter the phone number registered with your XSIM app</p>
           </div>
-          <div class="auth-divider"><span>or</span></div>
-          <button id="btn-demo-auth" class="btn-secondary btn-full" onclick="startAuth()">
-            <span class="btn-icon">📱</span> Simulate XSIM Authentication
+          <button id="btn-send-otp" class="btn-primary btn-full" onclick="submitPhone()">
+            <span class="btn-icon">📱</span> Send Verification Code
           </button>
+          <div id="phone-error" class="auth-error" style="display:none;"></div>
           <p class="auth-help">Don't have the XSIM app? <a href="#">Download here</a></p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== PAGE 3: WAITING / AUTHENTICATING ===== -->
-  <div id="page-waiting" class="page">
+  <!-- ===== PAGE 3: OTP ENTRY ===== -->
+  <div id="page-otp" class="page">
     <div class="center-layout">
       <div class="waiting-card">
-        <div class="auth-back" onclick="goTo('login')" style="align-self: flex-start;">← Cancel</div>
-        <div class="waiting-animation">
-          <div class="pulse-ring"></div>
-          <div class="pulse-ring delay-1"></div>
-          <div class="pulse-ring delay-2"></div>
-          <div class="phone-icon">📱</div>
+        <div class="auth-back" onclick="goTo('login')" style="align-self: flex-start;">← Back</div>
+        <div class="otp-header">
+          <div class="otp-phone-icon">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring delay-1"></div>
+            <div class="phone-icon">📱</div>
+          </div>
+          <h2>Enter Verification Code</h2>
+          <p class="otp-desc">A 4-digit code has been sent to your <strong>XSIM App</strong></p>
+          <p class="otp-phone-display" id="otp-phone-display">+855 ...</p>
         </div>
-        <h2>Waiting for Authentication</h2>
-        <p class="waiting-desc">Please open your <strong>XSIM App</strong> and approve the login request</p>
-        <div class="waiting-steps">
-          <div class="w-step completed" id="ws-1">
-            <span class="w-check">✓</span>
-            <span>QR code scanned</span>
-          </div>
-          <div class="w-step active" id="ws-2">
-            <span class="w-spinner"></span>
-            <span>SIM-based signature in progress...</span>
-          </div>
-          <div class="w-step pending" id="ws-3">
-            <span class="w-dot"></span>
-            <span>Server verification</span>
-          </div>
-          <div class="w-step pending" id="ws-4">
-            <span class="w-dot"></span>
-            <span>Establishing secure session</span>
-          </div>
+        <div class="otp-input-container">
+          <input type="text" class="otp-box" id="otp-1" maxlength="1" inputmode="numeric" autocomplete="one-time-code"
+            oninput="onOtpInput(1)" onkeydown="onOtpKeydown(event, 1)" autofocus>
+          <input type="text" class="otp-box" id="otp-2" maxlength="1" inputmode="numeric" oninput="onOtpInput(2)"
+            onkeydown="onOtpKeydown(event, 2)">
+          <input type="text" class="otp-box" id="otp-3" maxlength="1" inputmode="numeric" oninput="onOtpInput(3)"
+            onkeydown="onOtpKeydown(event, 3)">
+          <input type="text" class="otp-box" id="otp-4" maxlength="1" inputmode="numeric" oninput="onOtpInput(4)"
+            onkeydown="onOtpKeydown(event, 4)">
         </div>
+        <button id="btn-verify-otp" class="btn-primary btn-lg btn-full" onclick="verifyOtp()">
+          Verify & Sign In
+        </button>
+        <div id="otp-error" class="auth-error" style="display:none;"></div>
+        <button class="btn-text" onclick="resendOtp()">Didn't receive the code? <strong>Resend</strong></button>
         <div class="waiting-notice">
           <span>🔒</span>
           <p>Your authentication is secured with end-to-end encryption. No personal data is transmitted to third

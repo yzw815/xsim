@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../translations.dart';
 import '../services/event_service.dart';
-import '../services/log_service.dart';
-import '../widgets/flash_sms_popup.dart';
+import '../services/notification_service.dart';
+import 'demo_selector_screen.dart';
+import 'steps/register_screen.dart';
+import 'steps/waiting_screen.dart';
+import 'steps/otp_display_screen.dart';
 import 'steps/step1_login.dart';
 import 'steps/step2_phone.dart';
 import 'steps/step3_authenticating.dart';
 import 'steps/step4_flash_message.dart';
-import 'steps/step5_verifying.dart';
 import 'steps/step6_success.dart';
-import 'steps/step7_dashboard.dart';
 
+/// Main screen that manages all demo flows:
+/// - Demo Selector (first screen)
+/// - App Demo (original 5-step flow)
+/// - Web Portal Demo (register → waiting → OTP display)
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -19,86 +25,62 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  int _step = 1;
-  String _language = 'en';
-  String _phoneNumber = '';
-  String? _sentOtp;
+  // Current mode: 'selector', 'app_demo', 'web_demo'
+  String _mode = 'selector';
 
-  // Theme Colors - Updated for Cambodia design
-  final Color primaryBlue = const Color(0xFF33568F); // Button blue
-  final Color darkBlue = const Color(0xFF1F4181); // Title blue
-  final Color cambodiaRed = const Color(0xFFCE2E30); // Cambodia red
-  final Color step1Background = const Color(0xFFDBDBDB); // Gray background for step 1
-  final Color step2Background = const Color(0xFFF3F6FA); // Light blue-gray for step 2+
-  final Color successGreen = const Color(0xFF16A34A);
-  
+  // Web Portal Demo state
+  String _webScreen = 'register'; // 'register', 'waiting', 'otp_display'
+  String _phoneNumber = '';
+  String? _currentOtp;
+
+  // App Demo state (original flow)
+  int _appStep = 1;
+  String _language = 'en';
+
+  // Theme Colors
+  final Color primaryBlue = const Color(0xFF33568F);
+  final Color darkBlue = const Color(0xFF1F4181);
+
+  final NotificationService _notificationService = NotificationService();
   final EventService _eventService = EventService();
-  final LogService _logService = LogService();
 
   @override
   void initState() {
     super.initState();
+    _setupFCMListener();
   }
 
-  void setStep(int step) {
-    setState(() {
-      _step = step;
+  /// Listen for incoming FCM push messages
+  void _setupFCMListener() {
+    // Foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('📨 FCM message received: ${message.data}');
+      final otp = message.data['otp'];
+      if (otp != null) {
+        _showOtp(otp);
+      }
+    });
+
+    // App opened from notification (background → foreground)
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('📨 FCM message opened: ${message.data}');
+      final otp = message.data['otp'];
+      if (otp != null) {
+        _showOtp(otp);
+      }
     });
   }
-  
-  /// Send OTP to the entered phone number
-  Future<void> _sendOtpToPhone() async {
-    final fullPhone = '+855 $_phoneNumber'; // Cambodia country code
-    
-    // Log OTP request event
-    await _eventService.otpRequested(fullPhone);
-    
-    // Send OTP (generates OTP, calls API if in real mode)
-    final otp = await _eventService.sendOtp(fullPhone);
-    
-    if (otp != null) {
-      setState(() {
-        _sentOtp = otp;
-      });
-      
-      // Check if we're in dummy mode - show flash SMS popup
-      if (_eventService.isDummyMode) {
-        // Wait a moment to simulate "sending"
-        await Future.delayed(const Duration(milliseconds: 800));
-        
-        if (mounted) {
-          // Show the flash SMS popup with YES/NO buttons
-          await FlashSmsPopup.show(
-            context,
-            otp: otp,
-            onOk: () {
-              // After user taps YES, go to step 4 (OTP entry)
-              if (mounted) setStep(4);
-            },
-            onDismiss: () {
-              // After user taps NO, go back to step 2
-              if (mounted) setStep(2);
-            },
-          );
-        }
-      } else {
-        // Real API mode - wait for SMS then advance to step 4
-        await Future.delayed(const Duration(seconds: 2));
-        if (mounted) setStep(4);
-      }
-    } else {
-      // Failed to send OTP - show error and go back
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t('otpSendFailed')),
-            backgroundColor: Colors.red,
-          ),
-        );
-        setStep(2); // Go back to phone entry
-      }
-    }
+
+  /// Show OTP - works from any screen
+  void _showOtp(String otp) {
+    setState(() {
+      _currentOtp = otp;
+      _mode = 'web_demo';
+      _webScreen = 'otp_display';
+    });
   }
+
+  // ---- Navigation ----
 
   void toggleLanguage() {
     setState(() {
@@ -106,136 +88,232 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
-  void setPhoneNumber(String phone) {
-    setState(() {
-      _phoneNumber = phone;
-    });
-  }
-  
-  /// Verify the OTP entered by user
-  bool verifyEnteredOtp(String enteredOtp) {
-    return _eventService.verifyOtp(enteredOtp);
-  }
-
   String t(String key) => Translations.get(_language, key);
 
-  // Get background color based on current step
-  // Steps 1, 5, 6 use gray background (#DBDBDB)
-  // Steps 2, 3, 4, 7 use light blue-gray background (#F3F6FA)
+  // ---- Demo Selector ----
+
+  void _selectAppDemo() {
+    setState(() {
+      _mode = 'app_demo';
+      _appStep = 1;
+    });
+  }
+
+  void _selectWebPortalDemo() async {
+    // Check if phone already registered
+    final hasPhone = await _notificationService.loadSavedPhone();
+    setState(() {
+      _mode = 'web_demo';
+      if (hasPhone) {
+        _phoneNumber = _notificationService.displayPhone;
+        _webScreen = 'waiting';
+        // Re-register to update FCM token
+        _notificationService.reRegisterIfNeeded();
+      } else {
+        _webScreen = 'register';
+      }
+    });
+  }
+
+  void _backToSelector() {
+    setState(() {
+      _mode = 'selector';
+      _appStep = 1;
+      _webScreen = 'register';
+      _currentOtp = null;
+    });
+  }
+
+  // ---- Web Portal Demo callbacks ----
+
+  void _onRegistered(String phone) {
+    setState(() {
+      _phoneNumber = phone;
+      _webScreen = 'waiting';
+    });
+  }
+
+  void _onOtpReceived(String otp) {
+    setState(() {
+      _currentOtp = otp;
+      _webScreen = 'otp_display';
+    });
+  }
+
+  void _onOtpDone() {
+    setState(() {
+      _currentOtp = null;
+      _webScreen = 'waiting';
+    });
+  }
+
+  void _onChangeNumber() async {
+    await _notificationService.clearRegistration();
+    setState(() {
+      _phoneNumber = '';
+      _webScreen = 'register';
+    });
+  }
+
+  // ---- App Demo callbacks ----
+
+  void _appGoToStep(int step) {
+    setState(() {
+      _appStep = step;
+    });
+  }
+
+  // ---- Background color ----
+
   Color _getBackgroundColor() {
-    if (_step == 1 || _step == 5 || _step == 6) {
-      return step1Background;
+    if (_mode == 'selector' || (_mode == 'web_demo' && _webScreen == 'register')) {
+      return const Color(0xFFDBDBDB);
     }
-    return step2Background;
+    return const Color(0xFFF3F6FA);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Steps 1, 5, 6 use gray background with full-page layout (no blue header)
-    final bool isGrayBgStep = _step == 1 || _step == 5 || _step == 6;
-    
     return Scaffold(
       backgroundColor: _getBackgroundColor(),
       body: SafeArea(
-        // Remove safe area padding for steps that handle their own layout (steps 2, 3, 4)
-        top: isGrayBgStep,
-        // Only step 1 needs external padding (steps 5, 6 have internal padding with Stack)
-        child: _step == 1
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: _buildCurrentStep(),
-              )
-            : _buildCurrentStep(),
+        top: _mode == 'selector' || (_mode == 'web_demo' && _webScreen == 'register'),
+        child: _buildScreen(),
       ),
     );
   }
 
-  Widget _buildCurrentStep() {
-    switch (_step) {
+  Widget _buildScreen() {
+    switch (_mode) {
+      case 'selector':
+        return DemoSelectorScreen(
+          onAppDemo: _selectAppDemo,
+          onWebPortalDemo: _selectWebPortalDemo,
+        );
+
+      case 'app_demo':
+        return _buildAppDemoScreen();
+
+      case 'web_demo':
+        return _buildWebDemoScreen();
+
+      default:
+        return DemoSelectorScreen(
+          onAppDemo: _selectAppDemo,
+          onWebPortalDemo: _selectWebPortalDemo,
+        );
+    }
+  }
+
+  // ---- App Demo (Original 5-step flow) ----
+
+  Widget _buildAppDemoScreen() {
+    switch (_appStep) {
       case 1:
         return Step1Login(
           t: t,
-          language: _language,
           primaryBlue: primaryBlue,
           darkBlue: darkBlue,
-          onNext: () => setStep(2),
+          onNext: () => _appGoToStep(2),
           onToggleLanguage: toggleLanguage,
+          language: _language,
+          onBack: _backToSelector,
         );
       case 2:
         return Step2Phone(
           t: t,
-          phoneNumber: _phoneNumber,
           primaryBlue: primaryBlue,
           darkBlue: darkBlue,
-          onBack: () => setStep(1),
-          onNext: () => setStep(3),
-          onPhoneChanged: setPhoneNumber,
+          phoneNumber: '',
+          onNext: () {
+            _appGoToStep(3);
+          },
+          onBack: () => _appGoToStep(1),
+          onPhoneChanged: (phone) {},
         );
       case 3:
         return Step3Authenticating(
           t: t,
           primaryBlue: primaryBlue,
           darkBlue: darkBlue,
-          onBack: () => setStep(2),
-          onNext: () => _sendOtpToPhone(),
+          onNext: () => _appGoToStep(4),
+          onBack: () => _appGoToStep(2),
         );
       case 4:
         return Step4FlashMessage(
           t: t,
-          challengeCode: _sentOtp ?? '0000',
           primaryBlue: primaryBlue,
           darkBlue: darkBlue,
-          onNo: () => setStep(2),
-          onYes: () => setStep(5),
-          onVerifyOtp: verifyEnteredOtp,
+          challengeCode: '1234',
+          onYes: () => _appGoToStep(5),
+          onNo: () => _appGoToStep(2),
         );
       case 5:
-        return Step5Verifying(
-          t: t,
-          primaryBlue: primaryBlue,
-          onNext: () => setStep(6),
-          onBack: () => setStep(4),
-        );
-      case 6:
         return Step6Success(
           t: t,
           primaryBlue: primaryBlue,
-          successGreen: successGreen,
-          onBackToHome: () {
-            // Reset state and go back to step 1
-            setState(() {
-              _phoneNumber = '';
-              _sentOtp = null;
-            });
-            _eventService.clearOtp();
-            _logService.clearLogs(); // Clear all logs for fresh start
-            setStep(1);
-          },
-          onBack: () => setStep(5),
-        );
-      case 7:
-        return Step7Dashboard(
-          t: t,
-          onBackToHome: () {
-            // Reset state and go back to step 1
-            setState(() {
-              _phoneNumber = '';
-              _sentOtp = null;
-            });
-            _eventService.clearOtp();
-            _logService.clearLogs();
-            setStep(1);
-          },
-          onBack: () => setStep(6),
+          successGreen: const Color(0xFF4CAF50),
+          onBackToHome: _backToSelector,
+          onBack: _backToSelector,
         );
       default:
         return Step1Login(
           t: t,
-          language: _language,
           primaryBlue: primaryBlue,
           darkBlue: darkBlue,
-          onNext: () => setStep(2),
+          onNext: () => _appGoToStep(2),
           onToggleLanguage: toggleLanguage,
+          language: _language,
+          onBack: _backToSelector,
+        );
+    }
+  }
+
+  // ---- Web Portal Demo ----
+
+  Widget _buildWebDemoScreen() {
+    switch (_webScreen) {
+      case 'register':
+        return RegisterScreen(
+          t: t,
+          primaryBlue: primaryBlue,
+          darkBlue: darkBlue,
+          onRegistered: _onRegistered,
+          onToggleLanguage: toggleLanguage,
+          language: _language,
+          onBack: _backToSelector,
+        );
+      case 'waiting':
+        return WaitingScreen(
+          t: t,
+          primaryBlue: primaryBlue,
+          phoneNumber: _phoneNumber,
+          onBack: _backToSelector,
+          onOtpReceived: _onOtpReceived,
+          onChangeNumber: _onChangeNumber,
+        );
+      case 'otp_display':
+        return OtpDisplayScreen(
+          t: t,
+          primaryBlue: primaryBlue,
+          otp: _currentOtp ?? '0000',
+          phoneNumber: _phoneNumber,
+          onDone: _onOtpDone,
+          onBack: () {
+            setState(() {
+              _webScreen = 'waiting';
+            });
+          },
+        );
+      default:
+        return RegisterScreen(
+          t: t,
+          primaryBlue: primaryBlue,
+          darkBlue: darkBlue,
+          onRegistered: _onRegistered,
+          onToggleLanguage: toggleLanguage,
+          language: _language,
+          onBack: _backToSelector,
         );
     }
   }

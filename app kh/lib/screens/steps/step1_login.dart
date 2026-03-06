@@ -8,6 +8,7 @@ class Step1Login extends StatefulWidget {
   final Color darkBlue;
   final VoidCallback onNext;
   final VoidCallback onToggleLanguage;
+  final VoidCallback? onBack;
 
   const Step1Login({
     super.key,
@@ -17,6 +18,7 @@ class Step1Login extends StatefulWidget {
     required this.darkBlue,
     required this.onNext,
     required this.onToggleLanguage,
+    this.onBack,
   });
 
   @override
@@ -174,6 +176,31 @@ class _Step1LoginState extends State<Step1Login> {
             const SizedBox(height: 140),
           ],
         ),
+        // Back button (on top of everything so it's tappable)
+        if (widget.onBack != null)
+          Positioned(
+            top: 44,
+            left: 12,
+            child: GestureDetector(
+              onTap: widget.onBack,
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.45),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
+                    SizedBox(width: 4),
+                    Text('Back', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
+                  ],
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
