@@ -39,6 +39,16 @@ app/linux/flutter/ephemeral/
 .env.test.local
 .env.production.local
 
+# Secrets
+serviceAccountKey.json
+google-services.json
+GoogleService-Info.plist
+
+# Backups
+*.bak
+*.bak[0-9]
+app\ kh\ [0-9]*/
+
 # Testing
 coverage/
 .nyc_output/
