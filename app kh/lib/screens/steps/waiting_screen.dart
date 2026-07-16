@@ -8,6 +8,7 @@ class WaitingScreen extends StatefulWidget {
   final VoidCallback onBack;
   final Function(String otp) onOtpReceived;
   final VoidCallback? onChangeNumber;
+  final bool autoOtpTriggered;
 
   const WaitingScreen({
     super.key,
@@ -17,6 +18,7 @@ class WaitingScreen extends StatefulWidget {
     required this.onBack,
     required this.onOtpReceived,
     this.onChangeNumber,
+    this.autoOtpTriggered = false,
   });
 
   @override
@@ -39,6 +41,16 @@ class _WaitingScreenState extends State<WaitingScreen>
     _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // Apple Review Bypass - automatically receive OTP after 1 second
+    // Only fires once (autoOtpTriggered guards against looping)
+    if (widget.phoneNumber == '999999' && !widget.autoOtpTriggered) {
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          widget.onOtpReceived('1234');
+        }
+      });
+    }
   }
 
   @override

@@ -32,7 +32,7 @@ class _OtpDisplayScreenState extends State<OtpDisplayScreen>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 700),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -47,12 +47,10 @@ class _OtpDisplayScreenState extends State<OtpDisplayScreen>
     super.dispose();
   }
 
-  String _formatOtp(String otp) {
-    return otp.split('').join('  ');
-  }
-
   @override
   Widget build(BuildContext context) {
+    final digits = widget.otp.split('');
+
     return Column(
       children: [
         // Blue header
@@ -100,7 +98,7 @@ class _OtpDisplayScreenState extends State<OtpDisplayScreen>
             transform: Matrix4.translationValues(0, -20, 0),
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(30),
@@ -114,50 +112,53 @@ class _OtpDisplayScreenState extends State<OtpDisplayScreen>
               ),
               child: Column(
                 children: [
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   // SIM card icon
                   Image.asset(
                     'assets/images/sim_card_icon.png',
-                    width: 80,
-                    height: 80,
+                    width: 64,
+                    height: 64,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        width: 80,
-                        height: 80,
+                        width: 64,
+                        height: 64,
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF8E7),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE5A800), width: 2),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                              color: const Color(0xFFE5A800), width: 2),
                         ),
-                        child: const Icon(Icons.sim_card, size: 48, color: Color(0xFFE5A800)),
+                        child: const Icon(Icons.sim_card,
+                            size: 36, color: Color(0xFFE5A800)),
                       );
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
                   const Text(
                     'Flash Message by XSIM',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 17,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
-                    'For phone: +855 ${widget.phoneNumber}',
+                    '+855 ${widget.phoneNumber}',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black54,
                     ),
                   ),
-                  const SizedBox(height: 32),
-                  // OTP Display
+                  const SizedBox(height: 24),
+                  // OTP Display — 4 individual digit boxes in a Row
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 24, horizontal: 16),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
@@ -175,26 +176,50 @@ class _OtpDisplayScreenState extends State<OtpDisplayScreen>
                           const Text(
                             'Your Verification Code',
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
                               color: Color(0xFF33568F),
+                              letterSpacing: 0.5,
                             ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Each digit in its own white card
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: List.generate(digits.length, (i) {
+                              return Container(
+                                width: 60,
+                                height: 72,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF33568F)
+                                          .withOpacity(0.15),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    digits[i],
+                                    style: const TextStyle(
+                                      fontSize: 38,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF1F4181),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            _formatOtp(widget.otp),
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1F4181),
-                              letterSpacing: 8,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
                           const Text(
                             'Enter this code on the web portal',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 12,
                               color: Colors.black45,
                             ),
                           ),
@@ -219,7 +244,8 @@ class _OtpDisplayScreenState extends State<OtpDisplayScreen>
                       ),
                       child: const Text(
                         'Done',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style:
+                            TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),

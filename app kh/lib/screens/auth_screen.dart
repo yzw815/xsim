@@ -32,6 +32,7 @@ class _AuthScreenState extends State<AuthScreen> {
   String _webScreen = 'register'; // 'register', 'waiting', 'otp_display'
   String _phoneNumber = '';
   String? _currentOtp;
+  bool _reviewOtpTriggered = false; // prevents auto-OTP loop for 999999
 
   // App Demo state (original flow)
   int _appStep = 1;
@@ -121,6 +122,7 @@ class _AuthScreenState extends State<AuthScreen> {
       _appStep = 1;
       _webScreen = 'register';
       _currentOtp = null;
+      _reviewOtpTriggered = false; // reset for next use
     });
   }
 
@@ -137,6 +139,7 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() {
       _currentOtp = otp;
       _webScreen = 'otp_display';
+      _reviewOtpTriggered = true; // mark bypass as used
     });
   }
 
@@ -152,6 +155,7 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() {
       _phoneNumber = '';
       _webScreen = 'register';
+      _reviewOtpTriggered = false; // reset for fresh flow
     });
   }
 
@@ -291,6 +295,7 @@ class _AuthScreenState extends State<AuthScreen> {
           onBack: _backToSelector,
           onOtpReceived: _onOtpReceived,
           onChangeNumber: _onChangeNumber,
+          autoOtpTriggered: _reviewOtpTriggered,
         );
       case 'otp_display':
         return OtpDisplayScreen(

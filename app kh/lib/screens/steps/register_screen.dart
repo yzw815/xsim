@@ -61,6 +61,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    if (phone == '999999') {
+      // Apple Review Bypass - skip network request and instantly succeed
+      widget.onRegistered(phone);
+      return;
+    }
+
     setState(() {
       _isRegistering = true;
       _errorMessage = null;
@@ -204,8 +210,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               child: const Row(
                                 children: [
-                                  Text('🇰🇭', style: TextStyle(fontSize: 20)),
-                                  SizedBox(width: 6),
                                   Text('+855', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                                 ],
                               ),
@@ -327,7 +331,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Back button (on top of everything so it's tappable)
         if (widget.onBack != null)
           Positioned(
-            top: 44,
+            top: 4,
             left: 12,
             child: GestureDetector(
               onTap: widget.onBack,
